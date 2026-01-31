@@ -78,7 +78,7 @@ Place `seqcalc.sty` somewhere in your TeX tree, then load it:
 The full package documentation is available in:
 
 - `doc/seqcalc-doc.pdf`
-- Online: https://github.com/lambdaphoenix/seqcalc/doc/seqcalc-doc.pdf
+- Online: https://github.com/lambdaphoenix/seqcalc/blob/main/doc/seqcalc-doc.pdf
 
 
 ## License
