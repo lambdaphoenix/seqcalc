@@ -1,0 +1,19 @@
+\documentclass{minimal}
+\input{regression-test.tex}
+
+\usepackage[debug]{seqcalc}
+
+\begin{document}
+
+\START-TEST-LOG
+
+\SeqCalcDeclareRule{Foo}{1}[F]
+
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqRule{Foo}{A}
+\end{seqproof}
+
+\END-TEST-LOG
+
+\end{document}

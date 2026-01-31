@@ -1,0 +1,12 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line ....
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line ....
+Package seqcalc [formula]: Normalized 'A;;B' to 'A,B'
+Package seqcalc [formula]: Normalized 'C' to 'C'
+Package seqcalc [formula]: Normalized 'A;;B' to 'A,B'
+Package seqcalc [formula]: Normalized 'C' to 'C'
+Package seqcalc [formula]: Normalized 'A, , , B,,C' to 'A,B,C'
+Package seqcalc [formula]: Normalized 'D ,E' to 'D,E'

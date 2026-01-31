@@ -1,0 +1,16 @@
+\documentclass{minimal}
+\input{regression-test.tex}
+
+\usepackage[debug]{seqcalc}
+
+\begin{document}
+
+\START-TEST-LOG
+
+\seq{A;;B}{C}
+\seq{A;;B}{C}
+\seq{A, , , B,,C}{D   ,E}
+
+\END-TEST-LOG
+
+\end{document}

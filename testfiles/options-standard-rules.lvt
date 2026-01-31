@@ -1,0 +1,20 @@
+\documentclass{minimal}
+\input{regression-test.tex}
+
+\usepackage[debug, standard-rules]{seqcalc}
+
+\begin{document}
+
+\START-TEST-LOG
+
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqRule{NegR}{B}
+
+    \SeqAxiom{C}
+    \AndR{D}
+\end{seqproof}
+
+\END-TEST-LOG
+
+\end{document}

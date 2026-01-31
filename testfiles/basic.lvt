@@ -1,0 +1,20 @@
+\documentclass{minimal}
+\input{regression-test.tex}
+
+\usepackage[debug]{seqcalc}
+
+\begin{document}
+
+\START-TEST-LOG 
+
+\SeqCalcDeclareRule{AndR}{2}[\Rightarrow\land]
+
+\begin{seqproof}
+  \SeqPremise{A}
+  \SeqPremise{B}
+  \SeqRule{AndR}{A \land B}[\land R]
+\end{seqproof}
+
+\END-TEST-LOG
+
+\end{document}

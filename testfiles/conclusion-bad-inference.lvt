@@ -1,0 +1,17 @@
+\documentclass{minimal}
+\input{regression-test.tex}
+
+\usepackage[debug]{seqcalc}
+
+\begin{document}
+
+\START-TEST-LOG
+
+\begin{seqproof}
+  \SeqPremise{A}
+  \SeqConclusion{BadCmd}{B}
+\end{seqproof}
+
+\END-TEST-LOG
+
+\end{document}

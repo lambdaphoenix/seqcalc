@@ -1,0 +1,12 @@
+\documentclass{minimal}
+\input{regression-test.tex}
+
+\usepackage[debug]{seqcalc}
+
+\begin{document}
+
+\START-TEST-LOG
+  \SeqCalcDeclareShortcut{\SeqAxiom}{\SeqPremise}
+\END-TEST-LOG
+
+\end{document}

@@ -1,0 +1,586 @@
+\documentclass[a4paper,1pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{bookmark}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{seqcalc}
+
+\geometry{margin=3cm}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    columns=fullflexible,
+}
+
+\definecolor{seqblue}{HTML}{1A4E8A}
+\definecolor{seqgray}{HTML}{4A4A4A}
+\definecolor{seqlight}{HTML}{E9EEF4}
+\definecolor{seqaccent}{HTML}{C0392B}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=seqaccent,
+    citecolor=seqblue,
+    pdftitle={The seqcalc package},
+    pdfauthor={Julian}
+}
+
+\pagestyle{fancy}
+\fancyhead[L]{\texttt{seqcalc} Documentation}
+\fancyhead[R]{Version \seqcalcVersion}
+
+\tcbset{
+    seqexample/.style={
+        colback=seqlight,
+        colframe=seqblue,
+        coltitle=white,
+        fonttitle=\bfseries,
+        boxrule=0.8pt,
+        sidebyside
+    }
+}
+
+\usepackage{titlesec}
+\titleformat{\section} {\Large\bfseries\color{seqblue}} {\thesection}{1em}{}
+\titleformat{\subsection} {\large\bfseries\color{seqblue}} {\thesubsection}{1em}{}
+
+\makeatletter
+\renewcommand{\maketitle}{
+    \begin{titlepage}
+    \centering
+    {\Huge\bfseries\color{seqblue} \@title \par}
+    \vspace{0.5cm}
+    {\Large A structured sequent calculus wrapper for \texttt{bussproofs}\par} \vspace{1.5cm}
+    {\large \@author \par} \vspace{0.5cm}
+    {\large Version \seqcalcVersion{} — \@date \par} \vspace{1.5cm}
+    
+    \begin{tcolorbox}[ width=0.85\textwidth, colback=seqlight, colframe=seqblue, arc=2pt, boxrule=0.8pt, left=8pt,right=8pt,top=8pt,bottom=8pt, ]
+        \small\centering\begin{abstract}
+            \texttt{seqcalc} is a structured wrapper around the \texttt{bussproofs} package. It provides a declarative interface for sequent calculus proofs, including rule declaration, rule application, formula normalization, shortcuts, and optional standard rule sets. The goal is to simplify the construction of proof trees while keeping the underlying \texttt{bussproofs} layout untouched.
+        \end{abstract}
+    \end{tcolorbox}
+    \vfill
+    {\small Project page: \url{https://github.com/lambdaphoenix/seqcalc}\par}
+\end{titlepage} }
+\makeatother
+
+\title{\textbf{seqcalc}}
+\author{Julian}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+The \texttt{bussproofs} package by Sam Buss provides a flexible system for typesetting proof. The \texttt{seqcalc} package builds on top of it by offering a structured, declarative interface for sequent calculus proofs. Its goal is to simplify the construction of proof trees while preserving the layout and behaviour of \texttt{bussproofs}.
+\texttt{seqcalc} provides:
+\begin{itemize}
+    \item a declarative rule system with automatic macro generation,
+    \item optional formula normalization,
+    \item optional debug output,
+    \item optional shortcut commands,
+    \item optional built-in standard rules,
+    \item wrapper environments for proof trees.
+\end{itemize}
+\texttt{seqcalc} does not modify the layout logic of \texttt{bussproofs}. It only adds a structured interface on top. For exapmle usage see Section \ref{subsec:full_derivation}.
+
+\section{Installation}
+\subsection{Files}
+This work currently consists of a single file:
+\begin{itemize}
+    \item \texttt{seqcalc.sty}
+\end{itemize}
+Place this file somewhere in your \TeX{} tree where \LaTeX{} can find it, for example, in a local directory searched by your distribution or in the same directory as your document.
+
+\subsection{Loading the package}
+Load \texttt{seqcalc}:
+\begin{lstlisting}
+    \usepackage{seqcalc}
+\end{lstlisting}
+You may also pass options to \texttt{seqcalc}, as
+described in Section~\ref{sec:options}.
+
+\section{Package options}
+\label{sec:options}
+Package options are implemented using \texttt{l3keys2e}. All options are optional and have sensible defaults. Options may be passed when loading the package:
+
+\subsection{normalize-formulas}
+\begin{description}
+    \item[\texttt{normalize-formulas=<true|false>}]
+        Enables formula normalization. Default: \texttt{true}.
+\end{description}
+Normalization automatically removes redundant separators and whitespaces.
+\begin{tcolorbox}[
+    seqexample,
+    title={Normalization example}
+]
+\begin{lstlisting}
+\seq{A, , , B;;C}{D}
+\end{lstlisting}
+\tcblower
+    \seq{A, , , B;;C}{D}
+\end{tcolorbox}
+
+\subsection{debug}
+\begin{description}
+    \item[\texttt{debug=<true|false>}]
+        Prints debug messages to the terminal. Default: \texttt{false}.
+\end{description}
+Example output:
+\begin{lstlisting}
+    Package seqcalc [formula]: Normalized 'A;;B' to 'A,B'
+    Package seqcalc [rule]: Declaring rule AndR
+\end{lstlisting}
+
+\subsection{shortcuts}
+\begin{description}
+    \item[\texttt{shortcuts=<true|false>}]
+        Enables compact aliases for proof constructs. Default: \texttt{false}.
+    \end{description}
+Shortcuts may also be enabled at any point using \texttt{\textbackslash EnableSeqShortcuts}. A full list of shortcuts is given in Section~\ref{subsec:shortcuts}.
+
+\subsection{standard-rules}
+\begin{description}
+    \item[\texttt{standard-rules=<true|false>}]
+        Loads a built-in set of sequent calculus rules. Default: \texttt{false}.
+\end{description}
+Standard rules may also be enabled at runtime using \texttt{\textbackslash EnableSeqStandardRules}. The predefined rules are listed in Section~\ref{subsec:standard-rules}.
+
+\section{Runtime commands}
+\label{sec:commands}
+
+\subsection{Sequents}
+\begin{description}
+    \item[\texttt{\textbackslash seq\{A\}\{B\}}]
+        Typesets the sequent \seq{A}{B}.
+    \item[\texttt{\textbackslash seqL\{A\}}]
+        Typesets \seqL{A}.
+    \item[\texttt{\textbackslash seqR\{A\}}]
+        Typesets \seqR{A}.
+\end{description}
+The arguments \texttt{A} and \texttt{B} represent comma‑separated lists of formulas. If formula normalization is enabled, redundant separators, multiple commas, and superfluous whitespace are automatically removed.
+
+\subsection{Axioms and premises} \begin{description}
+    \item[\texttt{\textbackslash SeqAxiom\{A\}}]
+        Inserts an axiom.
+    \item[\texttt{\textbackslash SeqPremise\{A\}}]
+        Inserts a premise.
+\end{description}
+Axioms and premises both introduce leaves in a proof tree. Axioms are closed leaves (overlined), while premises remain open.
+See Section~\ref{subsec:conclusions} on conclusions for how axioms and premises are combined into inference steps.
+
+\subsection{Conclusions}
+\label{subsec:conclusions}
+\begin{description}
+    \item[\texttt{\textbackslash
+    SeqConclusion[Label]\{Cmd\}\{Formula\}[Hint]}]
+        General conclusion command.
+    \item[\texttt{\textbackslash SeqConclusionU[Label]\{Formula\}[Hint]}]
+        Unary inference.
+    \item[\texttt{\textbackslash SeqConclusionB[Label]\{Formula\}[Hint]}]
+        Binary inference.
+\end{description}
+A conclusion introduces an inference step.\\
+Arguments:
+\begin{itemize}
+    \item \texttt{Label} (optional): text placed to the left of the inference bar, typically the name of a rule;
+    \item \texttt{Cmd}: a \texttt{bussproofs} inference command (\texttt{UnaryInfC}, \texttt{BinaryInfC}, \texttt{TrinaryInfC});
+    \item \texttt{Formula}: the conclusion formula;
+    \item \texttt{Hint} (optional): text placed to the right of the inference bar, often used for instantiation information or side conditions.
+\end{itemize}
+
+\subsection{Shortcuts}
+\label{subsec:shortcuts}
+When shortcut support is enabled (either via the package option \texttt{shortcuts=true} or by calling \texttt{\textbackslash EnableSeqShortcuts}), \texttt{seqcalc} defines a set of compact aliases for proof‑tree constructs. These shortcuts behave exactly like their long forms:
+\begin{center}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Shortcut} & \textbf{Expands to} \\
+        \midrule
+        \texttt{\textbackslash SeqAx} & \texttt{\textbackslash SeqAxiom} \\
+        \texttt{\textbackslash SeqPr} & \texttt{\textbackslash SeqPremise} \\
+        \texttt{\textbackslash Cc} & \texttt{\textbackslash SeqConclusion} \\
+        \texttt{\textbackslash CU} & \texttt{\textbackslash SeqConclusionU} \\
+        \texttt{\textbackslash CB} & \texttt{\textbackslash SeqConclusionB} \\
+        \bottomrule
+    \end{tabular}
+\end{center}
+
+\section{Environments}
+\subsection{\texttt{seqproof}}
+A wrapper around \texttt{prooftree}:
+\begin{tcolorbox}[
+    seqexample,
+    title={\texttt{seqproof}}
+]
+\begin{lstlisting}
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqConclusionU{B}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+    \begin{seqproof}
+        \SeqPremise{A}
+        \SeqConclusionU{B}
+    \end{seqproof}
+\end{tcolorbox}
+
+\subsection{\texttt{seqproofinline}}
+A compact inline proof environment:
+\begin{tcolorbox}[
+    seqexample,
+    title={\texttt{seqproofinline}}
+]
+\begin{lstlisting}
+Some text 
+\begin{seqproofinline}
+    \SeqPremise{A}
+    \SeqConclusionU{B}
+\end{seqproofinline}
+and some more text...
+\end{lstlisting}
+\tcblower
+    Some text 
+    \begin{seqproofinline}
+        \SeqPremise{A}
+        \SeqConclusionU{B}
+    \end{seqproofinline}
+    and some more text...
+\end{tcolorbox}
+\noindent Inline proofs are useful when a full proof tree would interrupt the flow of text.\\
+For complete examples demonstrating these environments in practice, see Section~\ref{sec:examples}.
+
+\section{Rule system}
+A rule in \texttt{seqcalc} is a named inference pattern specifying its arity (one, two, or three premises) and an optional display label. Once declared, a rule can be applied using \texttt{\textbackslash SeqRule} or via its automatically generated macro.
+
+\subsection{Declaring rules}
+Declare rules using:
+\begin{lstlisting}
+    \SeqCalcDeclareRule{Name}{Premises}[Label]
+\end{lstlisting}
+
+\subsection{Applying rules}
+Apply rules with:
+\begin{lstlisting}
+    \SeqRule{Name}{Formula}[Hint]
+\end{lstlisting}
+Alternatively, once a rule has been declared, its name becomes a macro of its own:
+\begin{lstlisting}
+    \Name{Formula}[Hint]
+\end{lstlisting}
+
+\subsection{Standard rules}
+\label{subsec:standard-rules}
+
+When the option \texttt{standard-rules=true} is used, or when \texttt{\textbackslash EnableSeqStandardRules} is called, the following
+rules are predeclared:
+
+\begin{center}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Rule} & \textbf{Arity} & \textbf{Label} \\
+        \midrule
+        \texttt{NegL} & 1 & $(\neg\Rightarrow)$ \\
+        \texttt{NegR} & 1 & $(\Rightarrow\neg)$ \\
+        \texttt{AndL} & 1 & $(\land\Rightarrow)$ \\
+        \texttt{AndR} & 2 & $(\Rightarrow\land)$ \\
+        \texttt{OrL} & 2 & $(\lor\Rightarrow)$ \\
+        \texttt{OrR} & 1 & $(\Rightarrow\lor)$ \\
+        \texttt{ImpL} & 2 & $(\to\Rightarrow)$ \\
+        \texttt{ImpR} & 1 & $(\Rightarrow\to)$ \\
+        \texttt{ForallL} & 1 & $(\forall\Rightarrow)$ \\
+        \texttt{ForallR} & 1 & $(\Rightarrow\forall)$ \\
+        \texttt{ExistsL} & 1 & $(\exists\Rightarrow)$ \\
+        \texttt{ExistsR} & 1 & $(\Rightarrow\exists)$ \\
+        \texttt{SubL} & 1 & $(S\Rightarrow)$ \\
+        \texttt{SubR} & 1 & $(\Rightarrow S)$ \\
+        \texttt{EqL} & 1 & $(\Rightarrow =)$ \\
+        \bottomrule
+    \end{tabular}
+\end{center}
+All standard rules can be applied either via \texttt{\textbackslash SeqRule} or directly through their shortcut macro, e.g.
+\texttt{\textbackslash AndR\{B\}}.
+
+
+\section{Examples}
+\label{sec:examples}
+
+This section demonstrates the functionality of \texttt{seqcalc} using examples.
+
+\section{Minimal working example}
+The following example demonstrates the basic usage of \texttt{seqcalc}
+with a simple unary inference.
+
+\subsection{Basic axiom and unary conclusion}
+\begin{tcolorbox}[seqexample,title={Axiom and unary inference}]
+\begin{lstlisting}
+\begin{seqproof}
+    \SeqAxiom{A}
+    \SeqConclusionU{B}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\begin{seqproof}
+    \SeqAxiom{A}
+    \SeqConclusionU{B}
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Binary conclusion}
+\begin{tcolorbox}[seqexample,title={Binary conclusion}]
+\begin{lstlisting}
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqPremise{B}
+    \SeqConclusionB{A,B}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqPremise{B}
+    \SeqConclusionB{A,B}
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Using shortcuts}
+\begin{tcolorbox}[seqexample,title={Shortcuts enabled}]
+\begin{lstlisting}
+\EnableSeqShortcuts
+
+\begin{seqproof}
+    \SeqAx{A}
+    \CU{B}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\EnableSeqShortcuts
+\begin{seqproof}
+    \SeqAx{A}
+    \CU{B}
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Declaring and applying a custom rule}
+\begin{tcolorbox}[seqexample,title={Custom rule}]
+\begin{lstlisting}
+\SeqCalcDeclareRule{MyRule}{2}[\star]
+
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqPremise{B}
+    \MyRule{A,B}[C]
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\SeqCalcDeclareRule{MyRule}{2}[\star]
+\begin{seqproof}
+    \SeqPremise{A}
+    \SeqPremise{B}
+    \MyRule{A,B}[C]
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Using standard rules}
+\begin{tcolorbox}[seqexample,title={Standard rule: AndR}]
+\begin{lstlisting}
+\EnableSeqStandardRules
+
+\begin{seqproof}
+    \SeqPremise{A\Rightarrow B}
+    \SeqPremise{A\Rightarrow C}
+    \AndR{A\Rightarrow B\land C}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\EnableSeqStandardRules
+\begin{seqproof}
+    \SeqPremise{A\Rightarrow B}
+    \SeqPremise{A\Rightarrow C}
+    \AndR{A\Rightarrow B\land C}
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Using sequents in prooftree}
+\begin{tcolorbox}[seqexample,title={Sequents in prooftree}]
+\begin{lstlisting}
+\begin{seqproof}
+    \SeqPremise{\seq{A}{B}}
+    \SeqConclusionU{\seqR{B, \lnot A}}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\begin{seqproof}
+    \SeqPremise{\seq{A}{B}}
+    \SeqConclusionU{\seqR{B, \lnot A}}
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Declaring and applying a rule with sequents}
+\begin{tcolorbox}[seqexample,title={Custom rule with sequents}]
+\begin{lstlisting}
+% Declare a binary rule "Cut"
+\SeqCalcDeclareRule{Cut}{2}[\mathrm{Cut}]
+
+\begin{seqproof}
+    \SeqPremise{\seq{A}{B}}
+    \SeqPremise{\seq{B}{C}}
+    \Cut{\seq{A}{C}}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\SeqCalcDeclareRule{Cut}{2}[\mathrm{Cut}]
+\begin{seqproof}
+    \SeqPremise{\seq{A}{B}}
+    \SeqPremise{\seq{B}{C}}
+    \Cut{\seq{A}{C}}
+\end{seqproof}
+\end{tcolorbox}
+
+\subsection{Inline proof}
+\begin{tcolorbox}[seqexample,title={Inline proof}]
+\begin{lstlisting}
+We can derive $B$ from $A$ using:
+\begin{seqproofinline}
+    \SeqPremise{A}
+    \SeqConclusionU{B}
+\end{seqproofinline}
+which completes the argument.
+\end{lstlisting}
+\tcblower
+We can derive $B$ from $A$ using:
+\begin{seqproofinline}
+    \SeqPremise{A}
+    \SeqConclusionU{B}
+\end{seqproofinline}
+which completes the argument.
+\end{tcolorbox}
+
+\subsection{Full derivation:}
+\label{subsec:full_derivation}
+\begin{tcolorbox}[seqexample,title={Derivation of $A \land B \Rightarrow B \land A$}]
+\begin{lstlisting}
+\EnableSeqStandardRules
+
+\begin{seqproof}
+    % Left branch
+    \SeqAxiom{\seq{A,B}{A}}
+
+    % Right branch
+    \SeqAxiom{\seq{A,B}{B}}
+
+    % Combine
+    \AndR{\seq{A,B}{B\land A}}
+    \AndL{\seq{A\land B}{B\land A}}
+\end{seqproof}
+\end{lstlisting}
+\tcblower
+\begin{seqproof}
+    % Left branch
+    \SeqAxiom{\seq{A,B}{A}}
+
+    % Right branch
+    \SeqAxiom{\seq{A,B}{B}}
+
+    % Combine
+    \AndR{\seq{A,B}{B\land A}}
+    \AndL{\seq{A\land B}{B\land A}}
+\end{seqproof}
+\end{tcolorbox}
+
+\section{Implementation notes}
+
+\begin{itemize}
+    \item The rule system is implemented using global token lists.
+    \item Formula normalization uses \texttt{l3regex}.
+    \item Proof environments wrap the original \texttt{bussproofs} environments.
+\end{itemize}
+
+\section{License and maintenance}
+
+This work may be distributed and/or modified under the conditions of
+the \emph{\LaTeX{} Project Public License} (LPPL), version 1.3c or any
+later version. The latest version of this license is available at:
+\begin{center}
+    \url{https://www.latex-project.org/lppl/}
+\end{center}
+
+\noindent This work has the LPPL maintenance status \emph{maintained}. The
+current maintainer of this work is Julian (\href{https://github.com/lambdaphoenix}{lambdaphoenix}).
+This work consists of the following files:
+\begin{itemize}
+    \item \texttt{source/seqcalc.sty}
+    \item \texttt{doc/seqcalc-doc.tex} and the generated PDF
+    \item \texttt{testfiles/} (test suite for \texttt{l3build})
+    \item \texttt{build.lua} (build configuration)
+    \item \texttt{README.md}
+\end{itemize}
+\section{Project Information}
+
+The \texttt{seqcalc} package is developed openly on GitHub.
+Users are encouraged to report issues, request features, or contribute
+improvements.
+
+\subsection*{Repository}
+
+\begin{itemize}
+    \item Project page:
+        \url{https://github.com/lambdaphoenix/seqcalc}
+    \item Issue tracker:
+        \url{https://github.com/lambdaphoenix/seqcalc/issues}
+\end{itemize}
+The repository contains the following components:
+\begin{itemize}
+    \item \textbf{source/} - the package source file \texttt{seqcalc.sty}
+    \item \textbf{doc/} - the documentation source \texttt{seqcalc-doc.tex}
+    \item \textbf{testfiles/} - the l3build test suite (\texttt{.lvt} and \texttt{.tlg} files)
+    \item \textbf{build.lua} - the \texttt{l3build} configuration
+    \item \textbf{README.md} - project overview
+\end{itemize}
+The documentation PDF is generated from the files in \texttt{doc/}.
+
+\subsection*{Bug reports and feature requests}
+
+If you encounter unexpected behavior, incompatibilities, or missing
+features, please open an issue on GitHub. When reporting a problem,
+include:
+
+\begin{itemize}
+    \item a minimal working example
+    \item your \LaTeX{} distribution and version
+    \item the package version number
+\end{itemize}
+
+\subsection*{Contributing}
+
+Contributions are welcome. Pull requests should follow the existing code
+style and include examples when appropriate.
+
+\section{Change log}
+
+\subsection*{v1.0 (2026/01/30)}
+
+\begin{itemize}
+    \item Initial public version.
+    \item Rule declaration and application system.
+    \item Formula normalization.
+    \item Debug mode.
+    \item Shortcut system.
+    \item Standard rule set.
+\end{itemize}
+
+\end{document}
