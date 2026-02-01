@@ -51,11 +51,13 @@ The package adds:
     ```latex
     \EnableSeqShortcuts
     ```
+
 ### Standard rules (optional)
 - Enabled via:
     ```latex
     \EnableSeqStandardRules
     ```
+
 ### Proof environments
 - `seqproof` - wrapper around prooftree
 - `seqproofinline` - compact inline proof trees
