@@ -1,0 +1,27 @@
+name: Run tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/islandoftex/images/texlive:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mark repo as safe for git
+        run: git config --global --add safe.directory '*'
+
+      - name: Run l3build check
+        run: l3build check -q --show-log-on-error
+
+      - name: Archive failed test output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diff-files
+          path: build/test*/*.diff
