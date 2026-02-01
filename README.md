@@ -1,12 +1,16 @@
+[![CTAN Version](https://img.shields.io/ctan/v/seqcalc?link=https%3A%2F%2Fctan.org%2Fpkg%2Fseqcalc)](https://ctan.org/pkg/seqcalc)
+[![CTAN License](https://img.shields.io/ctan/l/seqcalc)](https://www.latex-project.org/lppl.txt)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/lambdaphoenix/seqcalc/run-tests.yml?logo=GitHub&label=Run%20tests)](https://github.com/lambdaphoenix/seqcalc/actions/workflows/run-tests.yml)
+
 # seqcalc - A structured sequent calculus wrapper for `bussproofs`
 
 ## Overview
-**Version:** 1.0<br>
-**Date:** 2026-01-31<br>
-**Author:** Julian ([lambdaphoenix](https://github.com/lambdaphoenix))<br>
-**License:** LPPL 1.3c or later<br>
+**Version:** 1.0 \
+**Date:** 2026-01-31 \
+**Author:** Julian ([lambdaphoenix](https://github.com/lambdaphoenix)) \
+**License:** LPPL 1.3c or later
 
-`seqcalc` is a structured, declarative wrapper around the [`bussproofs`](https://ctan.org/pkg/bussproofs) package. It provides an interface for building sequent calculus proofs while preserving the underlying layout logic of `bussproofs`.<br>
+`seqcalc` is a structured, declarative wrapper around the [`bussproofs`](https://ctan.org/pkg/bussproofs) package. It provides an interface for building sequent calculus proofs while preserving the underlying layout logic of `bussproofs`.
 
 The package adds:
 - a declarative rule system with automatic macro generation,
@@ -83,14 +87,14 @@ The full package documentation is available in:
 
 
 ## License
-This work may be distributed and/or modified under the conditions of the LaTeX Project Public License, either version 1.3c of this license or (at your option) any later version. The latest version of this license is in<br>
-&emsp;&emsp;&emsp;https://www.latex-project.org/lppl.txt<br>
-and version 1.3c or later is part of all distributions of LaTeX version 2008 or later.<br>
+This work may be distributed and/or modified under the conditions of the LaTeX Project Public License, either version 1.3c of this license or (at your option) any later version. The latest version of this license is in \
+&emsp;&emsp;&emsp;https://www.latex-project.org/lppl.txt \
+and version 1.3c or later is part of all distributions of LaTeX version 2008 or later.
 
-This work has the LPPL maintenance status `maintained'.<br>
+This work has the LPPL maintenance status `maintained'. \
 The Current Maintainer of this work is Julian.
 
 ## Development
-The package is developed openly on GitHub:<br>
-&emsp;Repository: https://github.com/lambdaphoenix/seqcalc<br>
+The package is developed openly on GitHub: \
+&emsp;Repository: https://github.com/lambdaphoenix/seqcalc \
 &emsp;Issue tracker: https://github.com/lambdaphoenix/seqcalc/issues
